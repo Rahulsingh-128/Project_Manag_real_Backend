@@ -23,7 +23,6 @@ export const authenticateToken = (
 
   try {
     const user = jwt.verify(token, JWT_SECRET);
-  
     req.user = user;
     next();
   } catch (error) {

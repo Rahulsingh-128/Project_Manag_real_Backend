@@ -21,7 +21,6 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password, email, _id } = req.body;
         const existingUser = yield User_1.default.findOne({ $or: [{ username }, { email }] });
-        console.log("existingUser", existingUser);
         if (existingUser) {
             res.status(400).json({ message: "Username or email already exists" });
             return;
@@ -33,13 +32,11 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             password: hashedPassword,
             email,
         });
-        console.log("registered user", user);
-        const save = yield user.save();
-        console.log("save", save);
-        const successfully = res.status(201).json({ message: "User created successfully", userId: user._id, username: user.username });
-        console.log("successfully", successfully);
+        yield user.save();
+        res.status(201).json({ message: "User created successfully", userId: user._id, username: user.username });
     }
     catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Error creating user" });
     }
 });
@@ -48,17 +45,19 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
         const user = yield User_1.default.findOne({ username });
+        console.log(user);
         if (!user) {
             res.status(400).json({ message: "User not found" });
             return;
         }
+        // const userId= user.id;
         const validPassword = yield bcryptjs_1.default.compare(password, user.password);
         if (!validPassword) {
             res.status(400).json({ message: "Invalid password" });
             return;
         }
         const token = jsonwebtoken_1.default.sign({ userId: user._id, username: user.username }, JWT_SECRET, { expiresIn: "24h" });
-        res.json({ token });
+        res.json({ userId: user._id, username, token });
     }
     catch (error) {
         res.status(500).json({ message: "Error logging in" });

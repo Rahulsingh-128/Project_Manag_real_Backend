@@ -30,8 +30,12 @@ const projSchema = new mongoose_1.Schema({
     Project_Name: { type: String, required: true },
     Details: { type: String, required: false },
     Demo_Link: { type: String, required: false },
-    Github_repository: { type: String, required: false }
-});
+    Github_repository: { type: String, required: false },
+    created_by: {
+        type: Number, // Refers to the User's _id field
+        ref: 'User' // Ensure that the project must have a creator
+    }
+}, { timestamps: true });
 // Create and export the model
 const Project = mongoose_1.default.model("Project", projSchema);
 exports.default = Project; // This should work
